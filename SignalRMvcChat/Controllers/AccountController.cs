@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SignalRMvcChat.Models;
 using SignalRMvcChat.ViewModels;
+using System.Threading.Tasks;
 
 namespace SignalRMvcChat.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -66,7 +68,7 @@ namespace SignalRMvcChat.Controllers
                 return View(registerVM);
             }
 
-            user = new IdentityUser
+            user = new AppUser
             {
                 UserName = registerVM.UserName,
             };

@@ -1,4 +1,5 @@
 ﻿using SignalRMvcChat.Models;
+using System.Collections.Generic;
 
 namespace SignalRMvcChat.ViewModels
 {

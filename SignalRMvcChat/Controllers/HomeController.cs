@@ -5,17 +5,21 @@ using Microsoft.EntityFrameworkCore;
 using SignalRMvcChat.Data;
 using SignalRMvcChat.Models;
 using SignalRMvcChat.ViewModels;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace SignalRMvcChat.Controllers
 {
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly AppDbContext _context;
 
-        public HomeController(UserManager<IdentityUser> userManager, AppDbContext context)
+        public HomeController(UserManager<AppUser> userManager, AppDbContext context)
         {
             _userManager = userManager;
             _context = context;
@@ -23,29 +27,48 @@ namespace SignalRMvcChat.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            var allMessages = _context.Messages.Where(m => m.SenderId == user.Id || m.ReceiverId == user.Id).ToList();
+            var user = await _userManager.GetUserAsync(User);
+            var conversations = _context.Conversations
+                .AsNoTracking()
+                .Include(c => c.Messages)
+                .Include(c => c.Users)
+                .Where(c => c.Users.Contains(user));
 
-            var chats = new List<ChatViewModel>();
-            foreach (var u in await _context.Users.ToListAsync())
+            List<Conversations> convs = new();
+            List<Groups> groups = new();
+            foreach (var conversation in conversations)
             {
-                if (u == user) continue;
-
-                var chat = new ChatViewModel()
+                if (conversation.Type == ConversationType.Private)
                 {
-                    MyMessages = allMessages.Where(x => x.SenderId == user.Id && x.ReceiverId == u.Id).ToList(),
-                    OtherMessages = allMessages.Where(x => x.SenderId == u.Id && x.ReceiverId == user.Id).ToList(),
-                    ReceiverName = u.UserName
-                };
-                var chatMessages = new List<Message>();
-                chatMessages.AddRange(chat.MyMessages);
-                chatMessages.AddRange(chat.OtherMessages);
-
-                chat.LastMessage = chatMessages.OrderByDescending(x => x.TimeStamp).FirstOrDefault();
-
-                chats.Add(chat);
+                    Conversations conv = new()
+                    {
+                        Conversation = conversation,
+                        LastMessage = conversation.Messages.OrderByDescending(m => m.TimeStamp).FirstOrDefault()!,
+                        RecepientName = conversation.Users.Where(u => u.Id != user.Id).FirstOrDefault().UserName,
+                    };
+                    convs.Add(conv);
+                }
+                else
+                {
+                    Groups gr = new()
+                    {
+                        GroupName = conversation.Name,
+                        Conversation = conversation,
+                        LastMessage = conversation.Messages.OrderByDescending(m => m.TimeStamp).FirstOrDefault()!,
+                    };
+                    groups.Add(gr);
+                }
+                
             }
-            return View(chats);
+
+            var ConversationVM = new ConversationViewModel
+            {
+                Conversations = convs,
+                Groups = groups,
+                Users = _context.Users.AsNoTracking().Where(u => u.UserName != user.UserName).Select(u => u.UserName).ToList(),
+            };
+
+            return View(ConversationVM);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

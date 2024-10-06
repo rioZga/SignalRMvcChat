@@ -287,3 +287,14 @@ body {
     margin-right: 7px;
     padding: 0;
 }
+
+#sidebar {
+    height: 100%;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
+
+#messages {
+    height: 70vh;
+    overflow-y: scroll;
+}

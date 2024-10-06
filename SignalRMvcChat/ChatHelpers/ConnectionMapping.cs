@@ -1,4 +1,7 @@
-﻿namespace SignalRMvcChat.ChatHelpers
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace SignalRMvcChat.ChatHelpers
 {
     public class ConnectionMapping<T>
     {

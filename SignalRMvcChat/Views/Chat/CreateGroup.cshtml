@@ -1,0 +1,31 @@
+﻿@using SignalRMvcChat.ViewModels
+@model CreateGroupViewModel
+@{
+    ViewData["Title"] = "Create Group";
+}
+
+<h2>Create New Group</h2>
+
+<form asp-controller="Chat" asp-action="CreateGroup" method="post" class="w-50">
+    <div class="form-group">
+        <label asp-for="Name">Group Name:</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="GroupMembers">Select Members:</label>
+        @foreach (var username in ViewBag.Users as List<string>)
+        {
+            <div>
+                <label>
+                    <input type="checkbox" name="GroupMembers" value="@username" />
+                    @username
+                </label>
+            </div>
+        }
+        <span asp-validation-for="GroupMembers" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Group</button>
+</form>

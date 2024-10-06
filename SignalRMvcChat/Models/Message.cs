@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
 
 namespace SignalRMvcChat.Models
 {
@@ -9,9 +9,10 @@ namespace SignalRMvcChat.Models
         public DateTime TimeStamp { get; set; }
         
         public string SenderId { get; set; }
-        public IdentityUser Sender { get; set; }
+        public string SenderName { get; set; }
+        public AppUser Sender { get; set; }
 
-        public string ReceiverId { get; set; }
-        public IdentityUser Receiver { get; set; }
+        public int ConversationId { get; set; }
+        public Conversation Conversation { get; set; }
     }
 }

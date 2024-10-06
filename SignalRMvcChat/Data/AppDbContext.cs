@@ -11,24 +11,12 @@ namespace SignalRMvcChat.Data
             Database.EnsureCreated();
         }
 
+        public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Message> Messages { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
-
-            builder.Entity<Message>()
-               .HasOne(m => m.Sender)
-               .WithMany()
-               .HasForeignKey(m => m.SenderId)
-               .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<Message>()
-                .HasOne(m => m.Receiver)
-                .WithMany()
-                .HasForeignKey(m => m.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
